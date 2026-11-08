@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="sv"><head><meta charset="utf-8"><title>Pokerkvällen</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon-192.png"><link rel="apple-touch-icon" href="/icon-180.png"><meta name="theme-color" content="#14201b"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Poker">
+<style>
+:root{--bg:#0c1013;--fg:#eef2f5;--card:#171d22;--card2:#1f272e;--bd:#2b353d;--mut:#8b98a5;--ac:#e0372e;--gold:#f2c14e;--green:#2fa862;--amber:#e3a21a;--felt:#1d5f4d;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+body{margin:0 auto;background:radial-gradient(120% 60% at 50% 0%,#1a252d 0%,#0c1013 62%) fixed;color:var(--fg);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-variant-numeric:tabular-nums;padding:12px;max-width:520px;min-height:100vh}
+h1{font-size:18px;margin:2px 0 10px;font-weight:800;letter-spacing:.01em}
+input,select,button{font:inherit;padding:10px 12px;border-radius:10px;border:1px solid var(--bd);background:var(--card2);color:var(--fg);min-width:0}
+button{cursor:pointer;font-weight:700;background:linear-gradient(#2a343d,#212a31);border-color:#38444e;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+button.p{background:linear-gradient(#e8473d,#b9291f);border-color:#b9291f;color:#fff}button:disabled{opacity:.4}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.row>*{flex:1}label{display:flex;flex-direction:column;gap:2px}
+summary{cursor:pointer}
+.msg{background:#151b20;border:1px solid var(--bd);border-radius:12px;padding:8px 10px;margin:8px 0;font-size:14px}.mut{color:var(--mut);font-size:14px}
+.pl{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--card2);border:1px solid var(--bd);border-radius:12px;padding:8px 10px;margin:6px 0}
+.pl.t{border-color:var(--ac)}.pl.f{opacity:.5}.pl small{color:var(--mut)}.hs{display:flex;gap:4px}
+.felt{background:radial-gradient(ellipse at 50% 35%,#2b8068,#133f33);border:6px solid #241d19;border-radius:26px;padding:12px;text-align:center;color:#fff}.felt .pot{font-size:14px;opacity:.9;margin-bottom:6px;color:var(--gold);font-weight:800}
+.board{display:flex;gap:4px;justify-content:center;min-height:44px}.felt .cd{--cs:12px}
+
+/* ---- kort ---- */
+.cd{position:relative;display:inline-block;flex:none;width:2.55em;height:3.5em;font-size:var(--cs,16px);line-height:1;font-weight:800;vertical-align:top;overflow:hidden;border-radius:.34em;color:#16181a;background:linear-gradient(160deg,#fff 0%,#eeeeea 100%);box-shadow:0 .1em .3em rgba(0,0,0,.6),inset 0 0 0 .06em rgba(0,0,0,.2)}
+.cd b{position:absolute;left:.2em;top:.13em;font-size:1.14em;letter-spacing:-.07em}
+.cd i{position:absolute;left:.28em;top:1.32em;font-style:normal;font-size:.9em}
+.cd u{position:absolute;right:.08em;bottom:.04em;text-decoration:none;font-size:1.95em;opacity:.92}
+.s1,.s2{color:#d6232a}
+body[data-deck=four] .s2{color:#1b66d6}body[data-deck=four] .s3{color:#1b8a3a}
+body[data-deck=solid] .cd{color:#fff;box-shadow:0 .1em .3em rgba(0,0,0,.6),inset 0 0 0 .06em rgba(0,0,0,.35)}body[data-deck=solid] .s0{background:linear-gradient(160deg,#33383d,#1c1f22)}body[data-deck=solid] .s1{background:linear-gradient(160deg,#e23a41,#a9161d)}body[data-deck=solid] .s2{background:linear-gradient(160deg,#2f7be8,#1450a8)}body[data-deck=solid] .s3{background:linear-gradient(160deg,#2aa14d,#146b30)}
+body[data-deck=dark] .cd{background:linear-gradient(160deg,#2a2f34,#16191c);color:#eee}body[data-deck=dark] .s1,body[data-deck=dark] .s2{color:#ff7468}
+body{--b1:#2a4f8f;--b2:#1e3a6b}body[data-back=red]{--b1:#a02a2a;--b2:#6e1b1b}body[data-back=green]{--b1:#2a7a4a;--b2:#1b5233}body[data-back=gold]{--b1:#b8912f;--b2:#8a6a1c}
+body .cd.back{background:radial-gradient(circle at 50% 50%,rgba(255,255,255,.25) 0 .35em,transparent .36em),repeating-linear-gradient(45deg,var(--b1) 0 .28em,var(--b2) .28em .56em);box-shadow:0 .1em .3em rgba(0,0,0,.6),inset 0 0 0 .16em #f4f1ea,inset 0 0 0 .22em var(--b2)}
+.cd.new{animation:deal .4s cubic-bezier(.2,.8,.25,1) both}
+@keyframes deal{from{transform:translateY(-28px) scale(.6) rotate(-9deg);opacity:0}to{transform:none;opacity:1}}
+
+/* ---- bord ---- */
+.tbl{position:relative;margin:6px 0 10px}
+.oval{position:absolute;border-radius:999px;background:radial-gradient(ellipse at 50% 36%,#2b8068 0%,#1d5f4d 48%,#133f33 100%);border:9px solid #241d19;box-shadow:inset 0 0 0 2px #8a6a2f,inset 0 0 36px 6px rgba(0,0,0,.55),0 10px 26px rgba(0,0,0,.65),0 0 0 2px #0a0807}
+.oval::before{content:"";position:absolute;inset:9% 8%;border:2px solid rgba(255,255,255,.09);border-radius:999px}
+.oval::after{content:"Pokerkvällen";position:absolute;left:0;right:0;top:66%;text-align:center;font-weight:800;letter-spacing:.12em;font-size:12px;color:rgba(255,255,255,.07)}
+.mid{position:absolute;left:50%;transform:translate(-50%,-50%);text-align:center;color:#fff;z-index:2}
+.mid .board{flex-wrap:wrap;gap:3px;min-height:0;margin-top:2px}.mid small{font-size:10px;opacity:.8}
+.potpill{display:inline-flex;align-items:center;gap:6px;background:rgba(0,0,0,.5);border:1px solid rgba(242,193,78,.4);color:var(--gold);padding:3px 12px 3px 8px;border-radius:999px;font-weight:800;font-size:13px;margin-bottom:4px}
+.chip{display:inline-block;width:15px;height:15px;border-radius:50%;background:#d6382f;box-shadow:inset 0 0 0 2.5px #f2eee2,inset 0 0 0 4px rgba(0,0,0,.18),0 2px 0 rgba(0,0,0,.45);flex:none}
+.bet{position:absolute;transform:translate(-50%,-50%);z-index:3;display:flex;align-items:center;gap:4px;background:rgba(0,0,0,.55);padding:2px 8px 2px 4px;border-radius:999px;font-size:12px;font-weight:800;color:#fff;white-space:nowrap}
+.st{position:absolute;transform:translate(-50%,-50%);z-index:4;text-align:center;line-height:1.2;font-size:12px;height:58px}
+.st .av{position:absolute;left:50%;top:0;margin-left:-16px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:#fff;border:2px solid rgba(255,255,255,.55);box-shadow:0 2px 6px rgba(0,0,0,.6);z-index:2}
+.st .plate{position:absolute;left:0;right:0;top:24px;padding:9px 3px 3px;border-radius:9px;background:linear-gradient(#27313a,#171d22);border:1px solid #3b4752;box-shadow:0 2px 6px rgba(0,0,0,.6);z-index:1}
+.st .nm{font-weight:700;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#e9eef2}
+.st .stk{font-weight:800;font-size:12px;color:var(--gold)}.st .stt{font-weight:800;font-size:11px;color:#ff8a7e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st .hs{position:absolute;right:calc(50% - 31px);top:3px;gap:0;flex-wrap:nowrap;z-index:3}.st .hs .cd{--cs:5.9px}.st .hs .cd+.cd{margin-left:-.95em}.st .hs .cd:nth-child(1){transform:rotate(-7deg)}.st .hs .cd:nth-child(2){transform:rotate(7deg)}
+.st .cn{position:absolute;right:-6px;bottom:-6px;background:#000;color:#fff;border-radius:999px;font-size:9px;padding:0 4px;line-height:14px;border:1px solid #3b4752}
+.st .dlr{position:absolute;left:4px;top:-3px;z-index:6;width:17px;height:17px;border-radius:50%;background:#fff;color:#111;font-size:11px;line-height:17px;font-weight:800;box-shadow:0 1px 3px rgba(0,0,0,.7)}
+.st.f{opacity:.55}.st.f .hs{display:none}.st.off .av{filter:grayscale(1)}
+.st.t .av{border-color:#fff;box-shadow:0 0 0 3px var(--ac),0 0 16px 4px rgba(224,55,46,.65);animation:pulse 1.2s ease-in-out infinite}.st.t .plate{border-color:var(--ac)}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 3px var(--ac),0 0 10px 2px rgba(224,55,46,.45)}50%{box-shadow:0 0 0 3px var(--ac),0 0 20px 7px rgba(224,55,46,.8)}}
+@property --p{syntax:'<number>';inherits:false;initial-value:100}
+@keyframes tbk{from{--p:var(--f0)}to{--p:0}}
+.tb{position:absolute;inset:-6px;border-radius:50%;background:conic-gradient(var(--gold) calc(var(--p)*1%),rgba(255,255,255,.14) 0);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 3px));mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 3px));animation:tbk linear forwards;pointer-events:none}
+.st.win .av{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold),0 0 18px 5px rgba(242,193,78,.75)}.st.win .plate{border-color:var(--gold);box-shadow:0 0 12px rgba(242,193,78,.65)}
+.mine{position:absolute;left:50%;transform:translateX(-50%);display:flex;gap:3px;z-index:5}.mine .cd{--cs:17px}.pk{display:inline-block;cursor:pointer;transition:transform .15s}
+.pl .cd{--cs:9.5px}.mid .cd{--cs:14px}
+
+/* ---- knappar ---- */
+.mini{padding:4px 10px;font-size:13px;margin-left:6px}.tbk{padding:8px;font-size:14px;width:100%}
+.st.stud{height:84px}.upr{position:absolute;left:0;right:0;top:62px;display:flex;justify-content:center;z-index:2}.upr .cd{--cs:6.4px}.upr .cd+.cd{margin-left:-.72em}.mine.sm .cd{--cs:13.5px}.cd.dn::before{content:"";position:absolute;right:.22em;top:.2em;width:.5em;height:.5em;border-radius:50%;background:var(--ac)}
+.lg{max-height:260px;overflow:auto;font-size:13px}
+.act{margin:8px 0;padding:10px;border:1px solid #33404a;border-radius:16px;background:linear-gradient(#1a2127,#12171b);box-shadow:0 6px 18px rgba(0,0,0,.4)}
+.act button{padding:14px 8px;font-size:17px;border-radius:12px;font-weight:800;border:0;color:#fff;box-shadow:0 2px 0 rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.2)}
+.act .qk button{padding:7px 4px;font-size:13px;border-radius:999px;background:#232c34;border:1px solid #3a4650;font-weight:700;box-shadow:none;color:var(--fg)}
+.act .tbk{background:transparent;border:1px solid #3a4650;box-shadow:none;font-size:14px;padding:8px;color:var(--fg)}
+.act input[type=range]{width:100%;margin:8px 0;accent-color:var(--amber)}.act input[type=number]{font-size:17px;font-weight:800}
+.bf{background:linear-gradient(#e8483f,#b32720)}.bc{background:linear-gradient(#36b96c,#228a4d)}.br{background:linear-gradient(#f2b92b,#d08f0b)!important;color:#1b1300!important}
+@media(prefers-reduced-motion:reduce){.cd.new,.st.t .av,.tb{animation:none}}
+</style></head><body>
+<h1>♠ Pokerkvällen</h1>
+<div id="login">
+<div class="row"><input id="nm" placeholder="Ditt namn" maxlength="14"><input id="cd" placeholder="Bordskod, t.ex. fredag" maxlength="20"></div>
+<div class="row"><input id="pw" placeholder="Lösenord (valfritt – sätts om du skapar bord)" maxlength="40"></div>
+<div class="row"><button class="p" onclick="go(0)">Gå med i bord</button></div>
+<details style="margin:12px 0"><summary class="mut">Skapa nytt bord (inställningar)</summary>
+<div class="row"><label class="mut">Variant<select id="vr" onchange="if(this.value=='omaha5'||this.value=='donk'||this.value=='sviten'||this.value=='o8')$('#lm').checked=true"><option value="holdem">Texas Hold'em</option><option value="omaha">Omaha (4 kort)</option><option value="omaha5">PLO5 (Omaha, 5 kort)</option><option value="donk">DonkEm (PLO, 2+2+1+superriver)</option><option value="pine">Pineapple (kasta 1 före floppen)</option><option value="crazy">Crazy Pineapple (kasta 1 efter floppen)</option><option value="lazy">Lazy Pineapple (kasta 1 efter turn)</option><option value="sviten">Sviten Special (5 kort, byte, delad pott)</option><option value="o8">Omaha Hi-Lo (8 eller bättre)</option><option value="stud">Seven Card Stud (fixed limit)</option><option value="razz">Razz (A–5 lowball, fixed limit)</option></select></label><label class="mut" style="flex-direction:row;align-items:center;gap:8px;flex:none"><input id="lm" type="checkbox" style="flex:none"> Pot limit</label></div>
+<div class="row"><label class="mut">Small blind<input id="sb" type="number" inputmode="numeric" value="5"></label><label class="mut">Big blind<input id="bb" type="number" inputmode="numeric" value="10"></label></div>
+<div class="row"><label class="mut">Minsta buy-in<input id="mn" type="number" inputmode="numeric" value="200"></label><label class="mut">Största buy-in<input id="mx" type="number" inputmode="numeric" value="1000"></label></div>
+<div class="row"><label class="mut">Bomb pot-ante (0 = av)<input id="bm" type="number" inputmode="numeric" value="0"></label><label class="mut">Automatiskt var N:e giv (0 = bara på begäran)<input id="bn" type="number" inputmode="numeric" value="0"></label></div>
+<div class="row"><button onclick="go(1)">Skapa bord</button></div></details>
+<div id="er" class="mut"></div></div>
+<div id="app" hidden></div><div id="note" class="msg" hidden></div>
+<script>
+const $=s=>document.querySelector(s),RK="23456789TJQKA",SU="♠♥♦♣",cr=c=>2+c%13,cs=c=>Math.floor(c/13);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
+let ws,S=null,name,code,tok,mk=null;
+const cd=(c,x,st)=>c==null?`<span class="cd back${x?' '+x:''}"${st?` style="${st}"`:''}></span>`:`<span class="cd s${cs(c)}${x?' '+x:''}"${st?` style="${st}"`:''}><b>${RK[cr(c)-2]=='T'?'10':RK[cr(c)-2]}</b><i>${SU[cs(c)]}</i><u>${SU[cs(c)]}</u></span>`;
+const card=c=>cd(c);
+const sd=(t,o)=>ws&&ws.readyState==1&&ws.send(JSON.stringify(Object.assign({t},o)));
+function go(create){keepAwake();name=$('#nm').value.trim().slice(0,14);code=$('#cd').value.trim().toLowerCase();if(!name||!code)return;
+ try{localStorage.setItem('pk_nm',name);tok=localStorage.getItem('pk_tok');if(!tok){tok=crypto.randomUUID();localStorage.setItem('pk_tok',tok)}}catch(e){tok=tok||String(Math.random()).slice(2)+Date.now()}
+ mk=create?{v:$('#vr').value,sb:$('#sb').value,bb:$('#bb').value,min:$('#mn').value,max:$('#mx').value,lim:$('#lm').checked,bomb:$('#bm').value,bn:$('#bn').value,pw:$('#pw').value}:null;S=null;conn()}
+function conn(){ws=new WebSocket((location.protocol=='https:'?'wss://':'ws://')+location.host);
+ ws.onopen=()=>sd('join',{code,token:tok,create:mk,pw:$('#pw').value});
+ ws.onmessage=e=>{const m=JSON.parse(e.data);
+  if(m.closed){S=null;$('#app').hidden=true;$('#login').hidden=false;$('#er').textContent=m.closed;return}
+  if(m.err){$('#er').textContent=m.err;return}
+  if(m.note){const n=$('#note');n.textContent=m.note;n.hidden=false;setTimeout(()=>n.hidden=true,8000)}
+  if(m.s){cfg.off=false;S=m.s;S.recv=Date.now();turnAlert();$('#login').hidden=true;$('#app').hidden=false;const nw=S.phase=='show'&&S.wins&&S.wins.length&&cfg.an!=S.hn;if(nw){cfg.an=S.hn;cfg.at=Date.now();setTimeout(render,1600);setTimeout(render,2900)}render();if(nw)fx()}};
+ ws.onclose=()=>{if(S){cfg.off=true;render();setTimeout(conn,1500)}}}
+const RN=['','','tvåa','trea','fyra','femma','sexa','sjua','åtta','nia','tia','knekt','dam','kung','ess'],RP=['','','tvåor','treor','fyror','femmor','sexor','sjuor','åttor','nior','tior','knektar','damer','kungar','ess'];
+function ev5(c){const r=c.map(cr).sort((a,b)=>b-a),fl=c.every(x=>cs(x)==cs(c[0])),n={};r.forEach(x=>n[x]=(n[x]||0)+1);
+ const g=Object.keys(n).map(Number).sort((a,b)=>n[b]-n[a]||b-a);let st=0;
+ if(g.length==5){if(r[0]-r[4]==4)st=r[0];else if(r[0]==14&&r[1]==5)st=5}
+ const k=n[g[0]],cat=st&&fl?8:k==4?7:k==3&&n[g[1]]==2?6:fl?5:st?4:k==3?3:k==2&&n[g[1]]==2?2:k==2?1:0;
+ return cat*1e6+(st?[st]:g).reduce((a,x)=>a*15+x,0)}
+function comb(a,k){const o=[];(function f(i,p){if(p.length==k){o.push(p);return}for(let j=i;j<a.length;j++)f(j+1,[...p,a[j]])})(0,[]);return o}
+function best(h,b,v){let m=0;const t=x=>{const s=ev5(x);if(s>m)m=s};
+ if(['omaha','omaha5','donk','sviten','o8'].includes(v))comb(h,2).forEach(a=>comb(b,3).forEach(c=>t(a.concat(c))));else comb(h.concat(b),5).forEach(t);return m}
+function nm(sc){const cat=Math.floor(sc/1e6);let e=sc%1e6;const g=[];while(e>0){g.unshift(e%15);e=Math.floor(e/15)}
+ const s=r=>RN[r],p=r=>RP[r];
+ return[`Högt kort, ${s(g[0])}`,`Par i ${p(g[0])}`,`Två par, ${p(g[0])} och ${p(g[1])}`,`Triss i ${p(g[0])}`,`Stege till ${s(g[0])}`,`Färg, ${s(g[0])} högt`,`Kåk, ${p(g[0])} över ${p(g[1])}`,`Fyrtal i ${p(g[0])}`,g[0]==14?'Royal flush':`Straight flush till ${s(g[0])}`][cat]}
+const lr=x=>{const r=cr(x);return r==14?1:r},rn=x=>({1:'A',11:'J',12:'Q',13:'K'}[x]||x);
+function evP(k){if(k.length==5)return ev5(k);const n={};k.map(cr).forEach(x=>n[x]=(n[x]||0)+1);const g=Object.keys(n).map(Number).sort((a,b)=>n[b]-n[a]||b-a),m=n[g[0]];
+ return(m==4?7:m==3?3:m==2&&n[g[1]]==2?2:m==2?1:0)*1e6+g.reduce((a,x)=>a*15+x,0)}
+function bestHi(k){if(k.length<5)return evP(k);let m=0;comb(k,5).forEach(x=>{const v=ev5(x);if(v>m)m=v});return m}
+function lowSc(r){return(r.length-new Set(r).size)*1e8+r.slice().sort((a,b)=>b-a).reduce((a,x)=>a*14+x,0)}
+function bestLowC(k){const r=k.map(lr);if(r.length<=5)return r.sort((a,b)=>b-a);let b=null,bs=null;comb(r,5).forEach(x=>{const v=lowSc(x);if(bs==null||v<bs){bs=v;b=x}});return b.slice().sort((a,c)=>c-a)}
+function lowO8(h,b){let m=null;comb(h,2).forEach(a=>comb(b,3).forEach(c=>{const l=a.concat(c).map(lr);if(Math.max(...l)>8||new Set(l).size<5)return;const v=l.sort((x,y)=>y-x).reduce((s,x)=>s*9+x,0);if(m==null||v<m)m=v}));return m}
+function lowTxt(v){const o=[];while(v>0){o.unshift(v%9);v=Math.floor(v/9)}return o.map(rn).join('-')}
+function desc(h,b,v){if(!h)return'';
+ if(v=='stud'||v=='razz'){const k=h.filter(x=>x!=null).concat(b||[]);if(!k.length)return'';return v=='razz'?'Låg '+bestLowC(k).map(rn).join('-'):nm(bestHi(k))}
+ const o=b.length>=3?nm(best(h,b,v)):'';
+ if(v=='sviten')return(o?'Omaha: '+o+' · ':'')+'Draw: '+nm(ev5(h));
+ if(v=='o8'&&b.length>=3){const l=lowO8(h,b);return o+' · '+(l==null?'ingen låg':'Låg '+lowTxt(l))}
+ return o}
+const cfg={};let P={deck:'four',back:'blue',qb:'50,75,100',qmin:true,hs:true};try{Object.assign(P,JSON.parse(localStorage.getItem('pk_prefs')||'{}'))}catch(e){}
+function ap(){document.body.dataset.deck=P.deck;document.body.dataset.back=P.back}ap();
+function qbs(){return String(P.qb||'').split(/[\s,;]+/).map(x=>x.trim().toLowerCase()).filter(Boolean).slice(0,6).map(x=>{let m;
+ if(m=x.match(/^(\d+(?:[.,]\d+)?)%?$/))return{l:m[1]+' %',f:parseFloat(m[1].replace(',','.'))/100};
+ if(m=x.match(/^(\d+(?:[.,]\d+)?)(?:bb|x)$/))return{l:m[1]+' bb',b:parseFloat(m[1].replace(',','.'))};return null}).filter(Boolean)}
+function sp(k,v){if(k=='dk')P.deck=v;if(k=='bk')P.back=v;if(k=='qm')P.qmin=v;if(k=='hs')P.hs=v;if(k=='qb'){P.qb=v;if(!qbs().length)P.qb='50,75,100'}
+ try{localStorage.setItem('pk_prefs',JSON.stringify(P))}catch(e){}ap();render()}
+const sel=(id,v,o)=>`<select id="${id}" onchange="sp('${id}',this.value)">${o.map(([k,l])=>`<option value="${k}" ${v==k?'selected':''}>${l}</option>`).join('')}</select>`;let ac,lastT='',snd=true;try{snd=localStorage.getItem('pk_snd')!='0'}catch(e){}
+addEventListener('pointerdown',()=>{keepAwake();try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();ac.resume()}catch(e){}},{once:true});
+function beep(){if(!snd)return;try{const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.frequency.value=880;g.gain.setValueAtTime(.15,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.5);o.start();o.stop(ac.currentTime+.5)}catch(e){}try{navigator.vibrate&&navigator.vibrate([200,100,200])}catch(e){}}
+function turnAlert(){const me=S.pl.find(p=>p.id==S.you),cur=S.pl[S.turn],dsc=S.phase=='play'&&S.sub=='dis'&&me&&!me.f&&!(S.dn&&me.id in S.dn),my=dsc||(S.phase=='play'&&!S.sub&&cur&&me&&cur.id==me.id),k=dsc?S.hn+':d':my?S.hn+':'+S.ac:'';if(k&&k!=lastT)beep();lastT=k;document.title=my?'● Din tur – Pokerkvällen':'Pokerkvällen'}
+function fx(){if(!S||!S.wins||!document.body||!document.body.appendChild||(typeof matchMedia=='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches))return;
+ const mid=document.querySelector('.mid');if(!mid)return;let L=document.getElementById('fx');
+ if(!L){L=document.createElement('div');L.id='fx';L.style.cssText='position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:50;overflow:hidden';document.body.appendChild(L)}
+ const mr=mid.getBoundingClientRect(),cx=mr.left+mr.width/2,cy=mr.top+mr.height/2,cols=['#c8372d','#1f5fbf','#e8e2d0','#1c7a3a'];
+ S.wins.forEach((w,wi)=>{const seat=document.querySelector('.st[data-id="'+w.id+'"]');if(!seat)return;const r=seat.getBoundingClientRect(),tx=r.left+r.width/2,ty=r.top+r.height/2,n=Math.min(12,Math.max(4,Math.ceil(w.a/(S.bb*2))));
+  for(let k=0;k<n;k++){const e=document.createElement('div');
+   e.style.cssText=`position:absolute;left:${cx-8}px;top:${cy-8}px;width:16px;height:16px;border-radius:50%;background:${cols[k%4]};border:3px dashed rgba(255,255,255,.85);box-shadow:0 1px 3px rgba(0,0,0,.5);opacity:0`;L.appendChild(e);
+   if(e.animate)e.animate([{transform:'translate(0,0) scale(.6)',opacity:0},{opacity:1,offset:.15},{transform:`translate(${tx-cx+(Math.random()*16-8)}px,${ty-cy+(Math.random()*12-6)}px) scale(1)`,opacity:1,offset:.85},{transform:`translate(${tx-cx}px,${ty-cy}px) scale(.8)`,opacity:0}],{duration:1500,delay:wi*200+k*(1100/n),easing:'cubic-bezier(.4,.1,.3,1)',fill:'both'});
+   setTimeout(()=>e.remove&&e.remove(),3200)}
+  const t=document.createElement('div');t.textContent='+'+w.a;t.style.cssText=`position:absolute;left:${tx-30}px;top:${ty-40}px;width:60px;text-align:center;font-weight:800;color:#2e9b5b;text-shadow:0 1px 2px rgba(0,0,0,.4);font-size:18px;opacity:0`;L.appendChild(t);
+  if(t.animate)t.animate([{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'translateY(0)',offset:.2},{opacity:1,offset:.8},{opacity:0,transform:'translateY(-14px)'}],{duration:1300,delay:1700+wi*200,fill:'both'});
+  setTimeout(()=>t.remove&&t.remove(),3300)})}
+function setRv(v,fi){cfg.rv=Math.max(0,Math.round(+v)||0);const r=$('#rs'),n=$('#rv'),b=$('#rb');if(r)r.value=cfg.rv;if(n&&!fi)n.value=cfg.rv;if(b)b.textContent=(S&&S.cb==0?'Satsa ':'Höj till ')+cfg.rv}
+let rp=null;
+function rpCalc(L,idx){const st={},bet={},fold={},ups={};L.pl.forEach(p=>{st[p.id]=p.c;bet[p.id]=0});let pot=0,board=[],eq=null,act=null,tx='';
+ for(let i=0;i<idx&&i<L.ev.length;i++){const e=L.ev[i];tx=e.tx||tx;act=e.id||null;
+  if(e.d){st[e.id]-=e.d;bet[e.id]+=e.d;pot+=e.d}
+  if(e.k=='ac'&&e.t=='f')fold[e.id]=1;
+  if(e.k=='bd'){board=e.b;L.pl.forEach(p=>bet[p.id]=0);eq=null;act=null}
+  if(e.k=='eq')eq=e.eq;
+  if(e.k=='dl'){for(const id in e.up)(ups[id]=ups[id]||[]).push(e.up[id])}
+  if(e.k=='w'){(e.w||[]).forEach(w=>{st[w.id]+=w.a});pot=0;act=null}}
+ return{st,bet,pot,board,fold,eq,act,tx,ups}}
+function openRp(){if(!S||!S.last)return;rpClose();rp={L:S.last,i:0,iv:null};rpDraw()}
+function rpClose(){if(rp&&rp.iv)clearInterval(rp.iv);rp=null;const o=document.getElementById('rp');if(o&&o.remove)o.remove()}
+function rpGo(n){if(!rp)return;rp.i=n<-1e3?0:n>1e3?rp.L.ev.length:Math.max(0,Math.min(rp.L.ev.length,rp.i+n));rpDraw()}
+function rpAuto(){if(!rp)return;if(rp.iv){clearInterval(rp.iv);rp.iv=null}else{if(rp.i>=rp.L.ev.length)rp.i=0;rp.iv=setInterval(()=>{if(!rp)return;if(rp.i>=rp.L.ev.length){clearInterval(rp.iv);rp.iv=null;rpDraw();return}rp.i++;rpDraw()},1300)}rpDraw()}
+function rpDraw(){if(!rp)return;let o=document.getElementById('rp');
+ if(!o){o=document.createElement('div');o.id='rp';o.style.cssText='position:fixed;left:0;top:0;width:100%;height:100%;z-index:60;background:var(--bg);color:var(--fg);overflow:auto;padding:12px;box-sizing:border-box';document.body.appendChild(o)}
+ const L=rp.L,s=rpCalc(L,rp.i),end=rp.i>=L.ev.length;
+ const hole=p=>{const f=L.fin[p.id]||[];if(end)return f;if(L.v=='stud'||L.v=='razz'){const mi=p.id==L.me&&L.mine?L.mine:[null,null];return[mi[0],mi[1]].concat(s.ups[p.id]||[])}if(p.id==L.me&&L.mine)return L.mine;return f.map(()=>null)};
+ o.innerHTML=`<div style="max-width:520px;margin:auto"><div class="row" style="align-items:center"><div><b>↺ Replay · giv #${L.hn}</b><br><span class="mut">${vname({v:L.v,lim:false})} · blinds ${L.sb}/${L.bb} · dealer ${esc(L.d)}</span></div><button style="flex:none" onclick="rpClose()">Stäng</button></div>
+<div class="felt" style="margin:8px 0"><div class="pot">Pott: ${s.pot}</div>${L.b1&&end?`<div class="board"><small>Run 1</small> ${L.b1.map(card).join('')}</div>`:''}<div class="board">${(end&&L.b1?L.fb:s.board).map(card).join('')||'<span style="opacity:.6">Inga kort än</span>'}</div></div>
+${L.pl.map(p=>`<div class="pl" style="${s.act==p.id?'border-color:var(--ac)':''}${s.fold[p.id]?';opacity:.5':''}"><div><b>${esc(p.n)}${p.id==L.me?' (du)':''}</b><br><small>${s.st[p.id]} marker${s.bet[p.id]?' · satsat '+s.bet[p.id]:''}${s.fold[p.id]?' · ur spel':''}${s.eq&&s.eq[p.id]!=null?' · '+s.eq[p.id]+'%':''}</small></div><div class="hs">${hole(p).map(card).join('')}</div></div>`).join('')}
+<div class="msg" style="min-height:44px">${esc(s.tx)||'Tryck ▶ för att börja'}</div>
+<div class="row"><button onclick="rpGo(-9999)">⏮</button><button onclick="rpGo(-1)">◀</button><button class="p" onclick="rpAuto()">${rp.iv?'⏸ Paus':'▶ Spela'}</button><button onclick="rpGo(1)">▶</button><button onclick="rpGo(9999)">⏭</button></div><div class="mut" style="text-align:center">Steg ${rp.i} av ${L.ev.length}</div></div>`}
+function tgl(i){if(S.v=='sviten')cfg.sel[i]=!cfg.sel[i];else cfg.sel={[i]:true};render()}
+function tg(){snd=!snd;try{localStorage.setItem('pk_snd',snd?'1':'0')}catch(e){}render()}const VN={pine:'Pineapple',crazy:'Crazy Pineapple',lazy:'Lazy Pineapple',sviten:'Sviten Special',o8:'Omaha Hi-Lo',stud:'Seven Card Stud',razz:'Razz'};const vname=s=>VN[s.v]?VN[s.v]+(s.lim&&s.v!='sviten'?' pot limit':'')+(s.fl?' fixed limit':''):s.v=='donk'?'DonkEm (PLO)':s.v=='omaha5'?(s.lim?'PLO5':'Omaha 5 kort'):s.v=='omaha'?(s.lim?'PLO':'Omaha'):s.lim?"Texas Hold'em pot limit":"Texas Hold'em";
+function render(){if(!S)return;
+ const ae=document.activeElement&&document.activeElement.id;if(S.sub=='dis'&&document.activeElement&&document.activeElement.blur)document.activeElement.blur();else if(['rv','tp','by','qb','rs','osb','obb','opw'].includes(ae)&&$('#app').querySelector('#'+ae))return;
+ const me=S.pl.find(p=>p.id==S.you),pot=S.pl.reduce((s,p)=>s+p.t,0),cur=S.pl[S.turn],myT=S.phase=='play'&&!S.sub&&cur&&cur.id==S.you;
+ const ready=S.pl.filter(p=>p.c>0&&!p.so).length>=2,anim=S.phase=='show'&&cfg.an==S.hn&&Date.now()-(cfg.at||0)<2800,dis=S.phase=='play'&&S.sub=='dis'&&me&&!me.f&&!(S.dn&&me.id in S.dn);if(!cfg.sel||cfg.sk!=S.hn){cfg.sel={};cfg.sk=S.hn}
+ let h=(cfg.off?'<div class="msg" style="border-color:var(--ac)">⚠ Tappade anslutningen – ansluter igen…</div>':'')+`<div class="mut">Bord: <b>${esc(S.code)}</b> · ${vname(S)} · ${S.fl?`limit ${S.bb}/${S.bb*2} · ante ${S.ante} · bring-in ${S.bri}`:`blinds ${S.sb}/${S.bb}`} · buy-in ${S.min}–${S.max}${S.bomb?` · 💣 ante ${S.bomb}${S.bn?`, var ${S.bn}:e giv`:''}`:''}</div>`;
+ const studv=S.v=='stud'||S.v=='razz',np=S.pl.length,mi=Math.max(0,S.pl.findIndex(p=>p.id==S.you)),TW=Math.max(280,$('#app').clientWidth||360),mm=np-1,TH=(mm<=2?340:mm<=3?360:mm<=5?410:mm<=6?450:520)+(studv?40:0),sw=np<=4?84:np<=6?76:66,sh=(np<=6?78:70)+(studv?22:0);let seats='',bets='';const nhd=cfg.ph!=S.hn;cfg.ph=S.hn;const prevB=cfg.pb&&cfg.pb.hn==S.hn?cfg.pb.n:0;cfg.pb={hn:S.hn,n:S.board.length};
+ const SL={L1:['L',.68],L2:['L',.48],L3:['L',.28],R1:['R',.68],R2:['R',.48],R3:['R',.28],TL:[.3,'T'],TC:[.5,'T'],TR:[.7,'T'],XL:[.22,'T'],XR:[.78,'T']};
+ const OD={1:['TC'],2:['TL','TR'],3:['L2','TC','R2'],4:['L1','L3','R3','R1'],5:['L1','L3','TC','R3','R1'],6:['L1','L3','TL','TR','R3','R1'],7:['L1','L3','XL','TC','XR','R3','R1'],8:['L1','L2','L3','TL','TR','R3','R2','R1']};
+ const pos=j=>{if(j==0)return[TW/2,TH-sh/2-2];let[a,b]=SL[OD[mm][j-1]];if(studv&&np>6&&a==.3)a=.38;if(studv&&np>6&&a==.7)a=.62;return[a=='L'?sw/2+2:a=='R'?TW-sw/2-2:a*TW,b=='T'?sh/2+2:b*TH]};
+  const hue=n=>{let x=0;for(const ch of String(n))x=(x*31+ch.charCodeAt(0))%360;return x},cx0=TW/2,cy0=TH*.47,cc=a=>a<S.bb*2?'#e9e5da':a<S.bb*10?'#d6382f':a<S.bb*50?'#2a63c8':'#2b2b2b';
+  S.pl.forEach((p,i)=>{const hs=S.hands[p.id];const upr=studv&&hs&&!p.f&&p.id!=S.you?`<div class="upr">${hs.map(card).join('')}</div>`:'',hd=!studv&&hs&&p.id!=S.you&&!p.f?hs.slice(0,2).map(()=>card(null)).join('')+(hs.length>2?`<b class="cn">${hs.length}</b>`:''):'';
+  const st=p.lv?'lämnar':p.so?'borta':p.off?'offline':S.sub=='dis'&&hs&&!p.f?(S.dn&&p.id in S.dn?'klar':'väljer kort…'):S.phase=='play'&&!hs?'väntar':S.phase=='play'&&p.f?'ur spel':S.phase=='play'&&S.eq&&p.id in S.eq?(p.c==0?'all-in · ':'')+S.eq[p.id]+'%':S.phase=='play'&&p.c==0?'all-in':p.c==0?'inga marker':'';
+   const[x,y]=pos((i-mi+np)%np),wonA=(S.wins||[]).filter(w=>w.id==p.id).reduce((a,w)=>a+w.a,0),isT=i==S.turn&&S.phase=='play'&&!S.sub,wd=S.sub=='dis'&&hs&&!p.f&&!(S.dn&&p.id in S.dn),left=Math.max(0,((S.te-S.now)-(Date.now()-S.recv))/1000),tt=(S.turnMs||30000)/1000,f0=Math.min(100,left/tt*100);
+   seats+=`<div class="st ${isT||wd?'t':''} ${wonA&&S.phase=='show'?'win':''} ${p.f&&S.phase=='play'?'f':''} ${p.off?'off':''} ${studv?'stud':''}" data-id="${p.id}" style="left:${Math.round(x)}px;top:${Math.round(y)}px;width:${sw}px;${np>6?'font-size:11px':''}"><div class="hs">${hd}</div><div class="av" style="background:hsl(${hue(p.n)} 42% 36%)">${esc(String(p.n||'?').slice(0,1).toUpperCase())}${isT?`<i class="tb" style="--f0:${f0.toFixed(1)};--f:${f0.toFixed(1)}%;animation-duration:${left.toFixed(1)}s"></i>`:''}</div>${!studv&&i==S.d&&S.phase!='wait'?'<b class="dlr">D</b>':''}<div class="plate"><div class="nm">${p.ow?'👑 ':''}${esc(p.n)}</div>${st?`<div class="stt">${st}</div>`:`<div class="stk">${p.c-(anim&&wonA?wonA:0)}</div>`}</div>${upr}</div>`;
+   if(p.b>0)bets+=`<div class="bet" style="left:${Math.round(x+(cx0-x)*.5)}px;top:${Math.round(y+(cy0-y)*.5)}px"><i class="chip" style="background:${cc(p.b)}"></i>${p.b}</div>`});
+  const mine=me&&S.hands[S.you],MH=mine?(studv?56:66):0,canShow=S.phase=='show'&&!!mine&&!(S.sd&&!me.f),midW=Math.max(110,Math.min(TW-2*sw-8,240)),csz=Math.max(10,Math.min(15,Math.floor((midW/5-4)/2.55)))*(S.b1||S.rit==2?.85:1);
+  const msgH=S.msg?`<div class="msg">${esc(S.msg)}${S.last&&S.phase=='show'?' <button class="mini" onclick="openRp()">↺ Replay</button>':''}</div>`:S.phase=='wait'?`<div class="msg">${ready?'Ny giv startar strax…':'Väntar på minst två spelare med marker.'}</div>`:'';
+  const mc=mine?`<div class="mine${studv?' sm':''}" style="top:${TH+4}px;${me.f&&S.phase=='play'?'opacity:.5':''}">${S.hands[S.you].map((c,i)=>`<span class="pk" ${dis?`onclick="tgl(${i})"`:canShow?`onclick="sd('show',{idx:[${i}]})"`:''} style="${dis&&cfg.sel[i]?'outline:3px solid var(--amber);border-radius:8px;transform:translateY(-10px)':''}">${cd(c,(nhd?'new':'')+(studv&&(i<2||i==6)?' dn':''),nhd?`animation-delay:${i*90}ms`:'')}</span>`).join('')}</div>`:'';
+ h+=msgH+`<div class="tbl" style="height:${TH+MH}px"><div class="oval" style="top:${Math.round(TH*.07)}px;height:${Math.round(TH*.84)}px;left:3%;right:3%"></div><div class="mid ${S.b1||S.rit==2?'two':''}" style="--cs:${csz.toFixed(1)}px;top:${Math.round(TH*.47)}px;width:${midW}px"><div class="potpill"><i class="chip"></i>Pott: ${S.phase=='play'?pot:(anim&&Date.now()-cfg.at<1500?(S.wins||[]).reduce((a,w)=>a+w.a,0):0)}</div>${S.b1?`<div class="board"><small>Run 1</small> ${S.b1.map(card).join('')}</div>`:''}<div class="board">${S.rit==2?`<small>Run ${S.b1?2:1}</small> `:''}${S.board.map((c,i)=>cd(c,i>=prevB?'new':'',i>=prevB?`animation-delay:${(i-prevB)*110}ms`:'')).join('')||(studv?'':'<span style="opacity:.6">Inga kort</span>')}</div></div>${seats}${bets}${mc}</div>`;
+  const dsc=mine&&P.hs&&(!me.f||S.phase=='show')&&S.phase!='wait'?desc(S.hands[S.you],S.board,S.v):'';
+  if(dsc)h+=`<div class="mut" style="text-align:center;margin:2px 0 8px">${esc(dsc)}</div>`;
+  if(canShow){const shn=(S.sh&&S.sh[me.id]||[]).length;if(shn<mine.length)h+=`<div class="row"><button onclick="sd('show')">👁 Visa mina kort</button></div><div class="mut" style="text-align:center;margin-top:-4px">…eller tryck på ett kort för att visa bara det.</div>`}
+ if(S.phase=='play'&&S.rvo&&me&&!me.f){const mv=S.rvo[me.id],wt=S.pl.filter(p=>!p.f&&S.hands[p.id]&&!(p.id in S.rvo)).map(p=>esc(p.n)).join(', ');
+  h+=`<div class="act"><div class="mut" style="text-align:center;margin-bottom:6px"><b>Alla är all-in</b> · Köra resten av korten två gånger? <span id="tm"></span></div>${mv==null?`<div class="row"><button class="bc" onclick="sd('rit',{yes:true})">Kör två gånger</button><button class="bf" onclick="sd('rit',{yes:false})">Kör en gång</button></div>`:`<div class="mut" style="text-align:center">Du röstade ${mv?'ja':'nej'}${wt?' · väntar på '+wt:''}</div>`}</div>`}
+ if(S.phase=='play'&&S.sub=='dis'){const sv=S.v=='sviten',n=Object.keys(cfg.sel).filter(i=>cfg.sel[i]).length,wt=S.pl.filter(p=>!p.f&&p.id!=S.you&&!(S.dn&&p.id in S.dn)).map(p=>esc(p.n)).join(', ');
+  h+=`<div class="msg" style="text-align:center;${dis?'border-color:var(--ac)':''}"><b>${dis?(sv?'Dags att byta kort':'Dags att kasta ett kort'):(sv?'Byte av kort':'Kasta kort')}</b> · <span id="tm"></span>${wt?' · väntar på '+wt:''}</div>`;
+  if(dis)h+=`<div class="row"><button class="p" ${!sv&&n!=1?'disabled':''} onclick="sd('disc',{idx:Object.keys(cfg.sel).filter(i=>cfg.sel[i]).map(Number)});cfg.sel={}">${sv?(n?'Byt '+n+' kort':'Behåll alla'):'Kasta valt kort'}</button></div><div class="mut" style="text-align:center">Tryck på korten du vill ${sv?'byta':'kasta'}.</div>`;if(dis&&me.tb>0)h+=`<div class="row"><button class="tbk" onclick="sd('tb')">⏱ Tidsbank +${Math.round((S.turnMs||30000)/1000)} s (${me.tb} kvar)</button></div>`}
+  if(myT){const need=S.cb-me.b,mn=Math.min(S.cb+S.mr,me.b+me.c),mxTo=S.lim?Math.min(S.cb+pot+(S.cb-me.b),me.b+me.c):me.b+me.c,canR=me.c>need&&mxTo>S.cb;
+   if(!cfg.rv||cfg.rv<mn||cfg.rv>mxTo)cfg.rv=mn;
+   const q=f=>Math.min(mxTo,Math.max(mn,Math.round(S.cb+f*(pot+need)))),fl=v=>`onclick="setRv(${v})"`;
+   h+=`<div class="act"><div class="mut" style="text-align:center;margin-bottom:6px"><b>Din tur</b> · <span id="tm"></span> · Pott ${pot}${need>0?' · Att syna '+Math.min(need,me.c):''}</div>
+<div class="row"><button class="bf" onclick="sd('act',{type:'fold'})">Lägg ner</button><button class="bc" onclick="sd('act',{type:'call'})">${need<=0?'Checka':'Syna '+Math.min(need,me.c)}</button></div>`;
+   if(S.fl){if(S.rt&&me.c>need)h+=`<div class="row"><button id="rb" class="br" onclick="sd('act',{type:'raise'})">${S.cb==0?'Satsa':'Höj till'} ${Math.min(S.rt,me.b+me.c)}</button></div>`}else if(canR)h+=`<div class="row qk">${P.qmin?`<button ${fl(mn)}>Min</button>`:''}${qbs().map(o=>`<button ${fl(o.f!=null?q(o.f):Math.min(mxTo,Math.max(mn,Math.round(o.b*S.bb))))}>${o.l}</button>`).join('')}<button ${fl(mxTo)}>${S.lim?'Pott '+mxTo:'All-in'}</button></div>
+<input id="rs" type="range" min="${mn}" max="${mxTo}" step="1" value="${cfg.rv}" oninput="setRv(+this.value)" onchange="this.blur()">
+<div class="row"><input id="rv" type="number" inputmode="numeric" value="${cfg.rv}" min="${mn}" max="${mxTo}" oninput="setRv(+this.value,1)" style="flex:1"><button id="rb" class="br" style="flex:2" onclick="sd('act',{type:'raise',amt:cfg.rv})">${S.cb==0?'Satsa':'Höj till'} ${cfg.rv}</button></div>`;
+   h+=(me.tb>0?`<div class="row"><button class="tbk" onclick="sd('tb')">⏱ Tidsbank +${Math.round((S.turnMs||30000)/1000)} s (${me.tb} kvar)</button></div>`:'')+'</div>'}
+  else if(S.phase=='play'&&!S.sub)h+=`<div class="mut" style="text-align:center;margin:8px 0">Väntar på ${esc(cur?cur.n:'…')} · <span id="tm"></span></div>`;
+ {const pub=(p,i)=>S.phase=='show'?((S.sd&&!p.f)||!!(S.sh&&S.sh[p.id]&&S.sh[p.id].includes(i))):(S.phase=='play'&&!!S.eq&&!p.f);
+  S.pl.filter(p=>S.hands[p.id]&&S.hands[p.id].some((x,i)=>x!=null&&pub(p,i))).forEach(p=>{const cs=S.hands[p.id].map((x,i)=>pub(p,i)?x:null),full=cs.every(x=>x!=null);
+   h+=`<div class="pl"><div><b>${esc(p.n)}</b><br><small>${full?esc(desc(cs,S.board,S.v)):''}</small></div><div class="hs">${cs.map(card).join('')}${S.phase=='play'&&S.eq&&S.eq[p.id]!=null?`<b style="margin-left:8px">${S.eq[p.id]}%</b>`:''}</div></div>`})}
+ if(!me&&S.pl.length>=(S.seats||9))h+=`<div class="mut">Bordet är fullt (högst ${S.seats} spelare i ${vname(S)}). Du tittar på.</div>`;
+ else if(!me)h+=`<div class="row"><input id="by" type="number" inputmode="numeric" value="${cfg.by||S.min}" min="${S.min}" max="${S.max}" oninput="cfg.by=this.value" style="flex:2"><button class="p" onclick="sd('sit',{buy:+$('#by').value,name})">Ta plats</button></div><div class="mut">Du tittar på. Välj buy-in mellan ${S.min} och ${S.max}.</div>`;
+ else{if(me.so)h+=`<div class="row"><button class="p" onclick="sd('back')">Jag är tillbaka</button></div>`;
+  if(S.phase!='play'||me.f)h+=`<div class="row"><input id="tp" type="number" inputmode="numeric" value="${cfg.tp||Math.max(0,Math.min(S.max-me.c,S.max))}" max="${S.max-me.c}" oninput="cfg.tp=this.value" style="flex:2"><button onclick="sd('top',{amt:+$('#tp').value})">Köp in mer</button></div>`;
+  h+=`<div class="row">${me.so?'':'<button onclick="sd(\'out\')">Sitt ut</button>'}${S.bomb>0?`<button onclick="sd('bomb')">💣 Bomb pot nästa giv${S.bq?' ✓':''}</button>`:''}<button onclick="if(confirm('Lämna bordet och ta med dina marker?'))sd('leave')">Lämna bordet</button></div>`}
+ h+=`<div class="row"><button onclick="tg()">${snd?'🔔 Ljud på':'🔕 Ljud av'}</button>${S.last?'<button onclick="openRp()">↺ Replay förra given</button>':''}</div>`;
+ if(S.isOwner)h+=`<details ${cfg.ow?'open':''} ontoggle="cfg.ow=this.open" style="margin:12px 0"><summary class="mut">👑 Bordsägare</summary>
+<div class="row"><label class="mut">Small blind<input id="osb" type="number" inputmode="numeric" value="${cfg.osb??(S.pb?S.pb.sb:S.sb)}" oninput="cfg.osb=this.value"></label><label class="mut">Big blind<input id="obb" type="number" inputmode="numeric" value="${cfg.obb??(S.pb?S.pb.bb:S.bb)}" oninput="cfg.obb=this.value"></label></div>
+<div class="row"><button onclick="sd('cfg',{sb:+$('#osb').value,bb:+$('#obb').value})">Spara blinds</button></div>${S.pb?`<div class="mut">Nya blinds ${S.pb.sb}/${S.pb.bb} gäller från nästa giv.</div>`:''}
+<div class="row"><input id="opw" type="text" placeholder="${S.pw?'Nytt lösenord (tomt = ta bort)':'Lösenord för bordet'}" maxlength="40"><button onclick="sd('pw',{pw:$('#opw').value});$('#opw').value=''">Spara lösenord</button></div>
+${S.pl.filter(p=>p.id!=S.you).map(p=>`<div class="pl"><b>${esc(p.n)}</b><button style="flex:none" onclick="if(confirm('Kasta ut ${esc(p.n)}?'))sd('kick',{id:'${p.id}'})">Kasta ut</button></div>`).join('')}
+<div class="row"><button onclick="if(confirm('Stänga bordet för alla?'))sd('close')">Stäng bordet</button></div></details>`;
+ const hh=(S.hist||[]).slice().reverse().map(x=>`<div class="mut" style="margin-top:8px"><b>Giv #${x.h}</b><br>${x.l.map(esc).join('<br>')}</div>`).join('');
+ const rs=(S.res||[]).slice().sort((a,b)=>(b.now-b.bi)-(a.now-a.bi));
+ if(rs.length)h+=`<details ${cfg.rs?'open':''} ontoggle="cfg.rs=this.open" style="margin:12px 0"><summary class="mut">Kvällens resultat</summary>${rs.map(r=>{const n=r.now-r.bi;return`<div class="pl"><div><b>${esc(r.n)}</b>${r.seated?'':' <small>(lämnat)</small>'}<br><small>Köpt in ${r.bi} · ${r.seated?'har':'tog ut'} ${r.now}</small></div><b style="color:${n>0?'#2e9b5b':n<0?'var(--ac)':'inherit'}">${n>0?'+':''}${n}</b></div>`}).join('')}</details>`;
+ h+=`<details ${cfg.st?'open':''} ontoggle="cfg.st=this.open" style="margin:12px 0"><summary class="mut">⚙ Inställningar</summary>
+<div class="row"><label class="mut">Kortlek${sel('dk',P.deck,[['classic','Klassisk (2 färger)'],['four','4 färger'],['solid','4 färger, färgade kort'],['dark','Mörk']])}</label><label class="mut">Kortbaksida${sel('bk',P.back,[['blue','Blå'],['red','Röd'],['green','Grön'],['gold','Guld']])}</label></div>
+<div class="row" style="justify-content:center;flex:none">${[12,24,36,48].map(card).join(' ')}</div>
+<div class="row"><label class="mut">Snabbknappar för höjning<input id="qb" value="${esc(P.qb)}" onchange="sp('qb',this.value)"></label></div>
+<label class="mut" style="flex-direction:row;gap:8px;align-items:center"><input type="checkbox" ${P.hs?'checked':''} onchange="sp('hs',this.checked)" style="flex:none"> Visa handstyrka under dina kort</label>
+<label class="mut" style="flex-direction:row;gap:8px;align-items:center"><input type="checkbox" ${P.qmin?'checked':''} onchange="sp('qm',this.checked)" style="flex:none"> Visa Min-knapp</label>
+<div class="mut">Procent av potten (50, 75, 100) eller antal big blinds (3bb). Högst 6, skilj med komma.</div></details>
+ <details ${cfg.lo?'open':''} ontoggle="cfg.lo=this.open" style="margin:12px 0"><summary class="mut">Logg</summary><div class="lg"><div>${(S.lg||[]).map(esc).join('<br>')||'<span class="mut">Inget än</span>'}</div>${hh}</div></details>`;
+ $('#app').innerHTML=h;if(dis&&cfg.sc!=S.hn){cfg.sc=S.hn;const m=document.querySelector('.mine');if(m&&m.scrollIntoView)m.scrollIntoView({block:'center'})}}
+setInterval(()=>{const el=$('#tm'),en=S&&(S.rvo&&S.rte?S.rte:S.te);if(el&&en)el.textContent=Math.max(0,Math.round((en-S.now-(Date.now()-S.recv))/1000))+' s'},500);
+addEventListener('resize',()=>{if(S)render()});
+let wl=null;async function keepAwake(){try{if(navigator.wakeLock&&document.visibilityState!='hidden'&&!wl){wl=await navigator.wakeLock.request('screen');wl.addEventListener('release',()=>{wl=null})}}catch(e){}}
+if(document.addEventListener)document.addEventListener('visibilitychange',()=>{if(document.visibilityState=='visible')keepAwake()});
+try{$('#nm').value=localStorage.getItem('pk_nm')||''}catch(e){}
+</script></body></html>
